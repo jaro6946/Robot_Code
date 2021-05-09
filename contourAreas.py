@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+
 
 
 
@@ -82,43 +82,65 @@ def conDet(windowName,img,count):
     #Draw contours around white regions
     cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
     cv2.CHAIN_APPROX_SIMPLE)
-    cnts = cnts[1]
+    cnts = cnts[0]
 
     
     
     splotch = np.zeros((1,20),dtype=np.uint16)
+    
     splotch=splotch[0]
     
     original=vis.copy()
 
-    i=0
+    maxmass=0
+    i=-1
+    lastmax=0
+    mass=0
+    if cnts is None:
+        cnts=[1,1]
+
     for d in cnts:
+        i=i+1;
         
       
-        splotch[i] = cv2.contourArea(d)
-        i=i+1
-    try:
-        #returns index of max area contour
-        maxmass=np.nanmax(splotch)
-    except:
-        maxmass=0
+        try:   
+            splotch[i] = cv2.contourArea(d)
+            
+    
+            #returns index of max area contour
+        
+            mass = cv2.contourArea(d)
+            if mass > maxmass:
+                maxmass=mass
+            lastmax=mass
+        except:
+            lastmax=mass
 
+    print('maxmass %f' % (maxmass))
     # loop over the contours
     i=0
     for c in cnts:
-        i=i+1
-        mass = cv2.contourArea(c)
+        i=i+1;
+        
   
         
         try:
+            
+            mass = cv2.contourArea(c)
+            
             #Calculate center of mass of every contour.
             M = cv2.moments(c)
+            
             cX = int(M["m10"] / mass)
+            
             cY = int(M["m01"] / mass)
+            
+            
             #Draw the contour of the biggest contour in green and not biggest in red
-            if maxmass < mass+5:
+            print("maxmass, mass %f, %f" %(maxmass, mass))
+            if maxmass-5 <= mass:
                 cv2.drawContours(img, [c], -1, (0, 255, 0), 2)
-            else:
+            if maxmass > mass:
                 cv2.drawContours(img, [c], -1, (0, 0, 255), 2)
 
 

@@ -211,14 +211,25 @@ if __name__ == '__main__':
 
     caps = list(map(create_capture, sources))
     shot_idx = 0
+    j=0
     while True:
-        print("Hello")
+        print(j)
         imgs = []
         for i, cap in enumerate(caps):
             ret, img = cap.read()
             imgs.append(img)
+            
+            scale_percent = 30 # percent of original size
+            width = int(img.shape[1] * scale_percent / 100)
+            height = int(img.shape[0] * scale_percent / 100)
+            dim = (width, height)
+  
+            # resize image
+            img = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+
+            img=CA.conDet('capture %d' % i, img,j)[0]
             cv2.imshow('capture %d' % i, img)
-        ch = cv2.waitKey(1)
+        ch = cv2.waitKey(5)
         
         if ch == 27:
            
@@ -229,4 +240,6 @@ if __name__ == '__main__':
                 cv2.imwrite(fn, img)
                 print(fn, 'saved')
             shot_idx += 1
+
+        j=j+1
     cv2.destroyAllWindows()
